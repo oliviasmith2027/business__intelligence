@@ -6,3 +6,4 @@ Some text
 
 - R
 - Git/GitHub
+- Tableau
