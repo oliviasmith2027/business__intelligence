@@ -46,3 +46,50 @@ jobs |>
 jobs|>
 dplyer:: filter(category == 'fulltime')
 dplyer::group_by(location_state) |>
+
+## Practice
+```{r}
+con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb.db")
+listings = DBI::dbReadTable(con, "listings") |>
+  tibble::as_tibble()
+DBI::dbDisconnect(con)
+dplyr::glimpse(listings)
+
+# Q1: Approach (a) would be to simply count the repetitions within the city col
+table(listings$city)
+# alternatively, group by > summarize (n()) -- that returns a df
+# in (a) we returned a named vector
+
+listings |>
+  dplyr:: group_by(city)
+  dplyr:: summarize(
+    city_count = dplyr::n()
+    ) --> practice_q1
+    
+# Q2: 2. For entire homes (room_type == "Entire home/apt") that sleep four or more, what is the median price in each city?
+listings |>
+  dplyr:: filter(
+    room_type == "Entire home/apt" & accomodates >= 4
+) |>
+  dplyr:: group_by(city) |>
+  dplyr: summarize(
+  median_price = median(price)
+  )
+  
+  # Q3. 3. Add price_per_person = price / accommodates. Which three listings are cheapest per person? Believe them?
+  #Note that this is per listing, and we need to create a new col'
+  
+  listings |>
+  dplyr::mutate
+    price_per_person = price / accommodates # LHS = new col name; RHS is the math used to create the new col [this is done row by row]
+) |>
+  dplyr::arrange(price_per_person) >|
+  #you don't need to do this step (next step); I/m just doing it so we can look at output in more compact way (less cols)
+    dplyr:: select(city, name, price, accomodates, price_per_person) |>
+    head(3) # tail would always proivide bottom 3 (most expensive 3 snce we're sorting in asc order by price_person)
+    
+    # Which five host_names have the most listings
+      dplyr:: count(host_name, sort = T) #short cut for group_by and then n()
+```
+
+
