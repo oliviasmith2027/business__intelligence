@@ -1,0 +1,48 @@
+---
+title: "Class 07"
+author: "Olivia Smith"
+date: "2026-09-16"
+output:
+  html_document: 
+    toc:TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+    code_download: TRUE
+    code_folding: show
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Demo
+```{r}
+con = DBI::dbConnect(RSQLite::SQLite(), "../data/scout.db")
+postings = DBI::dbReadTable(con, "scout_postings") |> tibble::as_tibble()
+DBI::dbDisconnect(con)
+
+jobs = postings |>
+  dplyr::select(company, title, location_state, remote, category, posted_at, last_seen_at) |>
+  dplyr::mutate(dplyr::across(dplyr::ends_with("_at"), as.Date),
+                days_open = as.numeric(last_seen_at - posted_at))
+```
+
+# for Q1 to answer it, we need the following: 
+# - number of jobs per category 
+# - fracton of those jobs that are remote friendly
+
+jobs |> 
+  dplyr::group_by (category)
+  dplyr::summarise(
+    postings = dplyr::n() #counting the number of rows per category
+    remote_share = mean(remote)
+    )
+    
+```
+)
+
+# Q2 Among the fulltime jobs, which states have the highest remote share? 
+jobs|>
+dplyer:: filter(category == 'fulltime')
+dplyer::group_by(location_state) |>
