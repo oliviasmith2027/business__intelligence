@@ -19,3 +19,4 @@ When matching a city name the user types, ensure the search is case-insensitive 
 When searching the name column for keywords, perform a case-insensitive search using str_detect with ignore_case = TRUE.
 
 When averaging review_scores_rating, ignore missing values (NA) by using na.rm = TRUE.
+
