@@ -18,3 +18,16 @@ qc = querychat::querychat(
 )
 
 qc$app_obj()
+
+ui = page_sidebar(
+  title   = "Midwest Airbnb Chat",
+  theme   = bs_theme(primary = "#FFC0CB",
+                     base_font = font_google("Roboto")),
+  sidebar = qc$sidebar(width = 350),
+  card(card_header(textOutput("title")),
+       DT::DTOutput("table")),
+  accordion(open = FALSE,
+            accordion_panel("SQL", verbatimTextOutput("sql")),
+            accordion_panel("About", " Midwest Airbnb listings for Chicago, Columbus, and Twin Cities; built by Olivia Smith"))
+)
+
