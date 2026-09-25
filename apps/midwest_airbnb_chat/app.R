@@ -21,7 +21,7 @@ qc$app_obj()
 
 ui = page_sidebar(
   title   = "Midwest Airbnb Chat",
-  theme   = bs_theme(primary = "#FFC0CB",
+  theme   = bs_theme(primary = "#C3142D",
                      base_font = font_google("Roboto")),
   sidebar = qc$sidebar(width = 350),
   card(card_header(textOutput("title")),
@@ -30,4 +30,13 @@ ui = page_sidebar(
             accordion_panel("SQL", verbatimTextOutput("sql")),
             accordion_panel("About", " Midwest Airbnb listings for Chicago, Columbus, and Twin Cities; built by Olivia Smith"))
 )
+server = function(input, output, session) {
+  vals = qc$server()
+  output$title = renderText(vals$title() %||% "All postings")
+  output$table = DT::renderDT(vals$df(),
+                              options = list(pageLength = 10))
+  output$sql   = renderText(vals$sql() %||%
+                              "SELECT * FROM airbnb_listings")
+}
 
+shinyApp(ui, server)

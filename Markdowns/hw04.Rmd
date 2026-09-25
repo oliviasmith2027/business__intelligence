@@ -15,3 +15,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # A1
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "~/Downloads/midwest_airbnb.db")
+listings = DBI::dbReadTable(con, "listings")
+
+dplyr::glimpse(listings)
+```
+con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb.db")
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "~/Downloads/midwest_airbnb.db")
+listings = DBI::dbReadTable(con, "listings")
+
+dplyr::glimpse(listings)
+```
