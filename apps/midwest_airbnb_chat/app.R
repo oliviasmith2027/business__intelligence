@@ -40,3 +40,49 @@ server = function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+library(shiny)
+library(bslib)
+library(querychat)
+library(DT)
+library(rlang) # Required for the %||% operator
+
+# 1. Initialize your QueryChat instance with your Airbnb dataset
+# (Replace `airbnb_data` with your actual data frame or database connection)
+qc <- QueryChat$new(airbnb_data, "airbnb_listings") 
+
+# 2. Define the UI
+ui <- page_sidebar(
+  title   = "Midwest Airbnb Chat",
+  theme   = bs_theme(primary = "#C3142D",
+                     base_font = font_google("Roboto")),
+  sidebar = qc$sidebar(width = 350),
+  card(
+    card_header(textOutput("title")),
+    DT::DTOutput("table")
+  ),
+  accordion(
+    open = FALSE,
+    accordion_panel("SQL", verbatimTextOutput("sql")),
+    accordion_panel("About", "Midwest Airbnb listings for Chicago, Columbus, and Twin Cities; built by Olivia Smith")
+  )
+)
+
+# 3. Define the Server function
+server <- function(input, output, session) {
+  vals = qc$server()
+  
+  output$title = renderText(vals$title() %||% "All postings")
+  
+  output$table = DT::renderDT(
+    vals$df(),
+    options = list(pageLength = 10)
+  )
+  
+  output$sql = renderText(
+    vals$sql() %||% "SELECT * FROM airbnb_listings"
+  )
+}
+
+# 4. Launch the application
+shinyApp(ui, server)
