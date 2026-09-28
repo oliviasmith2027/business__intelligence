@@ -1,0 +1,80 @@
+---
+title: "Class10"
+author: "Olivia Smith"
+date: "2026-09-28"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_selections: true
+    code_download: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Robotstxt
+
+The code chunk below will show the output from the [robotstxt package] () for the ISA course bulletin available at:
+<https://bulletin.miamioh.edu/courses-instruction/isa/>
+
+```{r}
+robotstxt::paths_allowed(paths = "/courses-instruction/isa/", domain = "bulletin.miamioh.edu", bot = "*")
+```
+
+
+## Wikipedia demo
+```{r wiki}
+robotstxt::paths_allowed(paths = "wiki/", domain = "https://en.wikipedia.org")
+```
+
+## LinkedIn demo
+
+from the example below, the `robotstxt` response is inconsistent with what the webpage says and is incorrect. As a general bot, we are not allowed to scrape anything from linkedIn. 
+
+```{r linkedin}
+robotstxt::paths_allowed(paths = "jobs/", domain = "https://www.linkedin.com", bot = "*")
+```
+
+## Indeed demo
+```{r indeed}
+robotstxt::paths_allowed(paths = "jobs/", domain = "https://www.indeed.com")
+```
+
+** If you removed the slash after the `.com`, the warning disappeared and we got a consistent result with the <https://www.linkedin.com/robots.txt> page
+
+
+## `rvest` demo: ISA course bulletin
+
+```{r rvest_demo}
+
+isa_page_in_r = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/")
+
+
+#extract the titles
+#if all titles look the same on the page, it means they have the same tag/class, which allows you to extract them in one step
+#we gpt the selector below by:
+## [a] highlighted the course
+##[b] right clicked and selected inspect
+##[c] found the part that was flushed containing the title
+##[d] right clicked and copied the selector
+##[e] I saw that the output from the code below just got me the 24th course so I dropped the `:nth-child(24)
+isa_page_in_r |>
+  rvest::html_elements("#sc_sccoursedescs > div > p.courseblocktitle > strong") |>
+  rvest::html_text2() -> isa_titles
+
+# course descriptions
+# css selector obtained using the selector gadget
+isa_page_in_r |>
+  rvest::html_elements(".courseblockdesc") |>
+  rvest:: html_text2() -> isa_descs
+
+isa_df = data.frame(
+  title = isa_titles, description = isa_descs
+)
+```
+
+
+
