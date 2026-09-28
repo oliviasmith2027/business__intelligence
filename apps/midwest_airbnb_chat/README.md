@@ -5,7 +5,16 @@
 
 A [querychat](https://github.com/posit-dev/querychat) <https://midwest-airbnb-chat-yak6.onrender.com> app built in ISA 401 (Miami University) on the Airbnb posting data.
 
+Q1: How many listings in Twin Cities and Chicago are less than $222 per night?
+
 <img width="1421" height="734" alt="image" src="https://github.com/user-attachments/assets/6132ae03-486c-4666-9d23-a51892db3bab" />
+
+Q2: Which Columbus neighbourhood has the priciest entire homes?
+
+<img width="1440" height="762" alt="image" src="https://github.com/user-attachments/assets/b4368f6e-95f7-45d0-8bbd-be72d8825ada" />
+
+Q3: How many listings could host a party of ten?
+<img width="1454" height="767" alt="image" src="https://github.com/user-attachments/assets/b1020d3b-5fd3-493c-8561-1db24848e4b8" />
 
 
 ------------------------------------------------------------------------
