@@ -9,25 +9,25 @@
 ## Field Definitions
 
 | Field | Type | Description |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | `city` | text | Which Inside Airbnb region the listing came from: `Chicago` (7,439 rows), `Columbus` (2,587), or `Twin Cities` (4,861). The Twin Cities file covers the Minneapolis-St. Paul metro area, not just the two cities. |
 | `snapshot_date` | text | Date Inside Airbnb compiled the file, stored as an ISO text string, not a date: `2026-07-20` for Chicago, `2026-07-23` for Columbus, `2026-07-21` for Twin Cities. Every row of a city shares the same value. |
 | `id` | text | Airbnb's listing id. Unique across the table (14,887 distinct values). Stored as text even though it looks numeric, so compare it to a quoted string. |
 | `name` | text | Listing title as shown on Airbnb (for example "Tiny Studio Apartment 94 Walk Score"). Never empty. |
 | `price` | real | Nightly price in U.S. dollars on the snapshot date, with the dollar sign and commas removed. Ranges from 2.56 to 11,412; never `NULL` (rows without a price were dropped). |
 | `room_type` | text | Airbnb's four listing categories: `Entire home/apt` (11,652 rows), `Private room` (2,951), `Hotel room` (246), or `Shared room` (38). |
-| `host_id` | text | Airbnb's unique identifier for the host/user. Stored as text to maintain precise ID matching across queries. |",
+| `host_id` | text | Airbnb's unique identifier for the host/user. Stored as text to maintain precise ID matching across queries. |
 | `host_name` | text | Name of the host as listed on their profile (usually just the first name or first names). |
 | `host_since` | text | The date the host profile was created on Airbnb, stored as an ISO text string (`YYYY-MM-DD`). |
 | `host_is_superhost` | text | Indicator of whether the host has achieved Superhost status (`t` for true, `f` for false). |
 | `neighbourhood` | text | The host's self-reported neighborhood or area description as written on the listing page. |
 | `latitude` | real | Geographic coordinate for latitude using the WGS84 projection system. |
 | `longitude` | real | Geographic coordinate for longitude using the WGS84 projection system. |
-| `property_type` | text | Self-selected property description assigned by the host (e.g., \"Entire rental unit\", \"Private room in home\"). |
+| `property_type` | text | Self-selected property description assigned by the host (e.g., "Entire rental unit", "Private room in home"). |
 | `accommodates` | integer | The maximum guest capacity allowed for the listing. |
 | `bedrooms` | real | The total number of bedrooms available in the listing. |
 | `beds` | real | The total number of beds available in the listing. |
-| `bathrooms_text` | text | Text description of the number and type of bathrooms (e.g., \"1 bath\", \"1.5 shared baths\", \"Half-bath\"). |
+| `bathrooms_text` | text | Text description of the number and type of bathrooms (e.g., "1 bath", "1.5 shared baths", "Half-bath"). |
 | `minimum_nights` | integer | The minimum number of nights required for a single reservation. |
 | `availability_365` | integer | The total number of available booking days over the next 365 days according to the listing calendar. |
 | `number_of_reviews` | integer | The cumulative total number of reviews the listing has received over its lifetime. |
