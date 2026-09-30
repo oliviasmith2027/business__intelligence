@@ -9,8 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+## Task 1
+
+```{r}
 con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb_extended.db")
 listings     = DBI::dbReadTable(con, "listings") |> tibble::as_tibble()
 availability = DBI::dbReadTable(con, "availability_monthly") |> tibble::as_tibble()
 reviews      = DBI::dbReadTable(con, "reviews_monthly") |> tibble::as_tibble()
 DBI::dbDisconnect(con)
+```
+
+```{r}
+ listings |> dplyr::group_by(city, host_id) |> dplyr::summarise(host_id_count = dplyr::n()) |> dplyr::arrange(dplyr::desc(host_id_count))
+```
+
