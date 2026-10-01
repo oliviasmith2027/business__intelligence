@@ -10,9 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-
-## Task 1
-
 ```{r}
 con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb_extended.db")
 listings     = DBI::dbReadTable(con, "listings") |> tibble::as_tibble()
@@ -21,7 +18,63 @@ reviews      = DBI::dbReadTable(con, "reviews_monthly") |> tibble::as_tibble()
 DBI::dbDisconnect(con)
 ```
 
+
 ```{r}
  listings |> dplyr::group_by(city, host_id) |> dplyr::summarise(host_id_count = dplyr::n()) |> dplyr::arrange(dplyr::desc(host_id_count))
 ```
 
+## Task 1
+```{r}
+host_counts <- listings |>
+  dplyr::count(host_id, name = "host_listings")
+```
+
+```{r}
+listings2 <- listings |> 
+  dplyr::left_join(host_counts, by = "host_id")
+```
+
+```{r}
+host_counts |> 
+  dplyr::filter(host_listings>= 10) |>
+  dplyr::summarise(A1= dplyr::n())
+
+host_counts
+```
+
+```{r}
+listings2 |>
+  dplyr::filter(city=="Chicago") |>
+  dplyr::summarise(
+    A2 = mean(host_listings >= 10) *100
+  
+  )
+```
+
+## Task 2
+```{r}
+listings |> 
+  dplyr::filter(
+    room_type == "Entire home/apt",
+    accommodates>=4,
+    number_of_reviews >= 10,
+    review_scores_rating>= 4.8
+  ) |>
+  dplyr::mutate(
+    price_per_person= price / accommodates
+  ) |> 
+  dplyr:: group_by(city, neighbourhood) |>
+  dplyr::summarise(
+    median_price_per_person = 
+  median(price_per_person, na.rm = TRUE),
+    n=dplyr::n()
+  ) |>
+  dplyr::filter(
+    n >=20,
+    city== "Columbus"
+  ) |>
+  dplyr::arrange(median_price_per_person)
+
+```
+
+## Task 3
