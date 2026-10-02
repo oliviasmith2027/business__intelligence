@@ -134,14 +134,69 @@ listings |>
 
 ## Task 6
 ```{r}
-reviews_monthly |>
+reviews |>
   dplyr::left_join(
     listings |>
       dplyr::select(id,city),
     by = "id"
-  )
+  )|>
+  dplyr::filter(
+    month>= "2025-07",
+    month<="2026-06"
+  )|>
+  dplyr::group_by(city,month) |>
+  dplyr::summarise(
+    total_reviews=sum(reviews,na.rm=TRUE)
+  ) |>
+  dplyr::filter(city=="Twin Cities") |>
+  dplyr::arrange(dplyr::desc(total_reviews))
+  
+```
+
+## Task 7
+```{r}
+superhost_summary<-listings |>
+  dplyr::filter(
+    room_type=="Entire home/apt",
+    host_is_superhost %in% c("t","f")
+  )|>
+  dplyr::group_by(city,host_is_superhost) |>
+  dplyr::summarise(
+    median_price=median(price,na.rm=TRUE),
+    median_rating=median(review_scores_rating,
+na.rm = TRUE)
   )
 ```
 
+```{r}
+missing_availability<-listings |>
+  dpylr::anti_join(
+    availability_monthly,
+    by="id"
+  )
+missing_availability |>
+  dplyr::summarise(
+    A10=dplyr:n()
+  )
+```
+
+## Task 8
+```{r}
+missing_availability <- listings |>
+  dplyr::anti_join(
+    availability,
+    by="id"
+  )
+
+missing_availability |>
+  dplyr::summarise(
+    A10=dplyr::n()
+  )
+
+missing_availability |>
+  dplyr::count(
+    city,
+    sort=TRUE)
+```
 
 
