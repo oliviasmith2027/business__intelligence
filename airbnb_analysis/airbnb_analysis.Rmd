@@ -78,3 +78,70 @@ listings |>
 ```
 
 ## Task 3
+```{r}
+listings |>
+  dplyr::group_by(city, room_type) |>
+  dplyr::summarise(
+    dplyr::across(
+      c(price, reviews_per_month, 
+estimated_revenue_l365d),
+    ~median(.x, na.rm = TRUE)
+    )
+)
+  
+```
+
+## Task 4
+```{r}
+listings |>
+  dplyr::group_by(city) |>
+  dplyr::arrange(dplyr::desc(
+estimated_revenue_l365d), .by_group = TRUE) |>
+  dplyr::mutate(
+    top_10 = dplyr::row_number() <= ceiling(0.10*
+dplyr::n())
+  ) |>
+  dplyr::summarise(
+    total_revenue=
+sum(estimated_revenue_l365d,na.rm=TRUE), 
+  top_10_revenue=
+sum(estimated_revenue_l365d[top_10],na.rm=TRUE),
+  top_10_percent=top_10_revenue /
+total_revenue*100
+) |>
+dplyr::filter(city=="Columbus")
+  
+```
+
+## Task 5
+```{r}
+listings |>
+  dplyr::filter(room_type=="Entire home/apt") |>
+  dplyr::left_join(
+    availability |>
+      dplyr::filter(month=="2026-10"),
+    by="id"
+  ) |>
+  dplyr::mutate(
+    mostly_taken= nights_available < 0.5 *nights_in_month
+  ) |>
+  dplyr::group_by(city) |>
+  dplyr::summarise(
+    share_mostly_taken= mean(mostly_taken) * 100
+  ) |> 
+  dplyr::arrange(share_mostly_taken)
+```
+
+## Task 6
+```{r}
+reviews_monthly |>
+  dplyr::left_join(
+    listings |>
+      dplyr::select(id,city),
+    by = "id"
+  )
+  )
+```
+
+
+
