@@ -127,7 +127,7 @@ listings |>
   ) |>
   dplyr::group_by(city) |>
   dplyr::summarise(
-    share_mostly_taken= mean(mostly_taken) * 100
+    share_mostly_taken = mean(mostly_taken, na.rm = TRUE) * 100
   ) |> 
   dplyr::arrange(share_mostly_taken)
 ```
@@ -155,28 +155,34 @@ reviews |>
 
 ## Task 7
 ```{r}
-superhost_summary<-listings |>
+listings |>
   dplyr::filter(
-    room_type=="Entire home/apt",
-    host_is_superhost %in% c("t","f")
-  )|>
-  dplyr::group_by(city,host_is_superhost) |>
+    room_type == "Entire home/apt", 
+    host_is_superhost %in% c("t", "f") # explicitly only keep t and f
+  ) |>
+  dplyr::group_by(city, host_is_superhost) |>
   dplyr::summarise(
-    median_price=median(price,na.rm=TRUE),
-    median_rating=median(review_scores_rating,
-na.rm = TRUE)
+    median_price = median(price, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  tidyr::pivot_wider(
+    names_from = host_is_superhost, 
+    values_from = median_price
+  ) |>
+  dplyr::mutate(
+    premium = `t` - `f`  # backticks ensure R knows these are columns
   )
 ```
 
 ```{r}
 missing_availability<-listings |>
-  dpylr::anti_join(
-    availability_monthly,
+  dplyr::anti_join(
+    availability,
     by="id"
   )
 missing_availability |>
   dplyr::summarise(
-    A10=dplyr:n()
+    A10=dplyr::n()
   )
 ```
 
