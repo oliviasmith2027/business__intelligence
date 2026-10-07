@@ -90,17 +90,82 @@ chat= ellmer::chat_openai(
 
 isa125_text = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/") |>
   # for this example, only the first course
-  rvest::html_element("#sc_sccoursedescs > div:nth-child(1)") |> rvest::html_text2()
+  rvest::html_elements("#sc_sccoursedescs > div:nth-child(1)") |> 
+rvest::html_text2()
 
-chat$chat_structured(
+course_info= chat$chat_structured(
   isa125_text,
   type = ellmer::type_object(
-    
     name = ellmer::type_string(
       description = "Name of the course. For example, ISA 235. Information Tech and Intelligent Entireprise. Don't include parenthesis for credit hour and don't end with a period"
     ),
-    description = ellmer::type_string(description = "The description of the course without the prereqs)")
-  )
+    description = ellmer::type_string(description = "The description of the course without the prereqs"),
+    prereqs= ellmer::type_string("List the information after prerequisite"))
 ```
 
+## All 50 courses
+```{r}
+chat= ellmer::chat_openai(
+  model = "gpt-5.6-luna", # note that the API Key that I provided only works with 5.6 luna. 
+  params = ellmer::params(reasoning_effort = "none"))
+ 
+course_list = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/") |> 
+  rvest::html_elements(".courseblock") |> 
+  rvest::html_text2() |> as.list() |> #returns a chr vestor 
+  as.list() # so asl.list converts to a list
+
+    name = ellmer::type_string(
+      description = "Name of the course. For example, ISA 235. Information Tech and Intelligent Entireprise. Don't include parenthesis for credit hour and don't end with a period"
+    ),
+    description = ellmer::type_string(description = "The description of the course without the prereqs"),
+    prereqs= ellmer::type_string("List the information after prerequisite"))
+```
+
+
+#tidying and having a techincally correct data from the planecrash info site
+
+```{rcrashes}
+year=2025
+
+crash_url = paste0('https://www.planecrashinfo.com/', year, '/', year, '.htm')
+
+# the encoding came from chatisa as shown in class 12
+crash_page <- rvest::read_html(crash_url, encoding= "ISO-8859-1")
+
+crash_page |>
+  # selector from inspector (kept the last 3 parts of selector)
+  #note the output (we also dropped:nth-child(8) in tr since we want all rows)
+  rvest::html_elements("tr > td:nth-child(1) > font") |>
+  rvest::html_text2() -> date_col
+
+crash_page |>
+#repeat for location_operator
+  rvest::html_elements("tr > td:nth-child(2) > font") |>
+  rvest::html_text2() -> location_operator
+
+crash_page |>
+#repeat for aircraft_reg
+  rvest::html_elements("tr > td:nth-child(3) > font") |>
+  rvest::html_text2() -> aircraft_reg
+
+crash_page |>
+#repeat for fatalities
+  rvest::html_elements("tr > td:nth-child(4) > font") |>
+  rvest::html_text2() -> fatalities
+
+# note that the number of elements in the four vectors are not equal
+df = data.frame(
+  date_col= date_col,
+  # -1 drops the first row that had the col header
+  location_operator= location_operator[-1],
+  aircraft_reg= aircraft_reg[-1],
+  fatalities= fatalities[-1])
+
+#make this tidy
+
+df |>
+  tidyr::separate(col= location_operator, into = c("location", "operator"), sep= "\n") |>
+  tidyr:: separate(col= aircraft_reg, into = c("aircraft", "registration"), sep= "\n") |>
+  tidyr::separate(col= fatalities, into = c("air_fatalities", "num_pass", "ground_facilities"))
+```
 
