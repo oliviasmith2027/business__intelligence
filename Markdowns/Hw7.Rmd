@@ -1,0 +1,166 @@
+---
+title: "Hw7"
+author: "Olivia Smith"
+date: "2026-10-06"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_selections: true
+    code_download: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## We want to include the following departments in the FSB Directory: 
+
+[ACC](https://miamioh.edu/fsb/directory/?up=/query/all/all/Accountancy/all), 
+[ECO](https://miamioh.edu/fsb/directory/?up=/query/all/all/Economics/all), 
+[ESP](https://miamioh.edu/fsb/directory/?up=/query/all/all/Entrepreneurship/all),
+[FIN](https://miamioh.edu/fsb/directory/?up=/query/all/all/Finance/all),
+[ISA](https://miamioh.edu/fsb/directory/?up=/query/all/all/Information%20Systems%20--%20Analytics/all), 
+[MKT](https://miamioh.edu/fsb/directory/?up=/query/all/all/Marketing/all),
+[MGT](https://miamioh.edu/fsb/directory/?up=/query/all/all/Management/all)
+
+## I tried to make my own code, following the directions as taught in class, failed, then worked with ChatISA to develop a proper answer. First is my attempted code, then is what I worked with on ChatISA to get the right answer. 
+
+
+dept = c('Accounting','Economics','Entrepreneurship','Finance','Business Analytics','Marketing','Management')
+
+for (abbreviate in dept) {
+  cat( rep("-", 50), "\n")
+  print(abbreviate)
+}
+directory_url=paste0(
+  'https://miamioh.edu/fsb/directory/?up=/query/all/all/',dept[3], '/', 'all'
+  )
+
+webpage = rvest::read_html(directory_url)
+
+webpage |> rvest::html_elements("td") |> rvest::html_text2() -> department
+
+webpage |> rvest::html_elements("#sidebar-main > div > table > tbody > tr > td > i") |> rvest::html_text2() -> descs
+
+df= data.frame(department=department, desc=descs)
+
+
+```{r}
+if(require(rvest)==FALSE) install.packages("rvest")
+if(require(httr2)==FALSE) install.packages("httr2")
+
+# Step 1: Check robots.txt to confirm we're allowed to scrape
+robots_txt <- httr2::request("https://miamioh.edu/robots.txt") |>
+  httr2::req_perform() |>
+  httr2::resp_body_string()
+
+cat(robots_txt)
+
+cat("\n\n---------------------------------------\n\n")
+
+# Step 2: Fetch the Accountancy directory page and peek at its structure
+accountancy_page <- rvest::read_html("https://miamioh.edu/fsb/directory/?up=/query/all/all/Accountancy/all")
+
+accountancy_page |>
+  as.character() |>
+  substr(1, 4000) |>
+  cat()
+```
+
+```{r}
+if(require(rvest)==FALSE) install.packages("rvest")
+
+directory_url <- "https://miamioh.edu/fsb/directory/?up=/query/all/all/Accountancy/all"
+webpage <- rvest::read_html(directory_url)
+
+# How many tables are on this page?
+tables <- webpage |> rvest::html_elements("table")
+cat("Number of tables found:", length(tables), "\n\n")
+
+# Look at the raw HTML of just the first table (truncated) so we can see its structure
+tables[[1]] |>
+  as.character() |>
+  substr(1, 3000) |>
+  cat()
+```
+
+```{r}
+
+if(require(rvest)==FALSE) install.packages("rvest")
+
+main_directory_url <- "https://miamioh.edu/fsb/directory/"
+webpage <- rvest::read_html(main_directory_url)
+
+# Find the department dropdown/select options
+options <- webpage |> rvest::html_elements("select option")
+
+options |> rvest::html_text2()
+options |> rvest::html_attr("value")
+```
+
+```{r}
+     
+if(require(rvest)==FALSE) install.packages("rvest")
+if(require(purrr)==FALSE) install.packages("purrr")
+if(require(tibble)==FALSE) install.packages("tibble")
+if(require(stringr)==FALSE) install.packages("stringr")
+
+# Function to scrape ONE department's directory page
+scrape_department <- function(dept_value, dept_label) {
+
+  url <- paste0(
+    "https://miamioh.edu/fsb/directory/?up=/query/all/all/",
+    dept_value, "/all"
+  )
+
+  page <- rvest::read_html(url)
+  rows <- page |> rvest::html_elements("table tr")
+
+  rows |>
+    purrr::map(function(row) {
+
+      name_node <- row |> rvest::html_element("td strong a")
+
+      # Skip the header row (it has no name link)
+      if (is.na(name_node)) return(NULL)
+
+      tibble::tibble(
+        department = dept_label,
+        name = name_node |>
+          rvest::html_text2() |>
+          stringr::str_squish(),
+        position = row |>
+          rvest::html_element("td i") |>
+          rvest::html_text2() |>
+          stringr::str_squish(),
+        website = name_node |> rvest::html_attr("href")
+      )
+    }) |>
+    purrr::list_rbind()
+}
+
+# Department labels (for display) and values (for the URL)
+depts <- tibble::tibble(
+  label = c("Accountancy", "Economics", "Entrepreneurship", "Finance",
+            "Information Systems & Analytics", "Marketing", "Management"),
+  value = c("Accountancy", "Economics", "Entrepreneurship", "Finance",
+            "Information_Systems_and_Analytics", "Marketing", "Management")
+)
+
+# Loop the function over all seven departments and combine into one tibble
+all_faculty <- purrr::map2(depts$value, depts$label, scrape_department) |>
+  purrr::list_rbind()
+
+# Print the first few rows
+print(head(all_faculty))
+```
+
+```{r}
+if(require(dplyr)==FALSE) install.packages("dplyr")
+
+# Count how many rows we got per department
+all_faculty |>
+  dplyr::count(department)
+```
