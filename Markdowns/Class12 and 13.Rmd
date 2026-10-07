@@ -166,6 +166,6 @@ df = data.frame(
 df |>
   tidyr::separate(col= location_operator, into = c("location", "operator"), sep= "\n") |>
   tidyr:: separate(col= aircraft_reg, into = c("aircraft", "registration"), sep= "\n") |>
-  tidyr::separate(col= fatalities, into = c("air_fatalities", "num_pass", "ground_facilities"))
+  tidyr::separate(col= fatalities, into = c("air_fatalities", "num_pass", "ground_facilities")) -> tidy_df
 ```
 
